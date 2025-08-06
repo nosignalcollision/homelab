@@ -70,6 +70,6 @@ resource "cloudflare_dns_record" "mail_cname" {
   zone_id = var.cloudflare_zone_id
   name    = "mail.${var.domain_name}"
   content = "fastmail.com"
-  proxied = false
+  proxied = true
   ttl     = 1
 }
