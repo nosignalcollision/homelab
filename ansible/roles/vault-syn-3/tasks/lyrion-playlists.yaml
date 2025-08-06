@@ -1,0 +1,35 @@
+# This is not run by default by this role.
+# To be included when needed:
+# - name: Mount Lyrion Playlists file share 
+#  include_role:
+#    name: vault-syn-3
+#    tasks_from: lyrion-playlists
+- name: Create Lyrion playlists share owner
+  ansible.builtin.user:
+    name: mount-lyrion-playlists
+    create_home: false
+    comment: "Lyrion playlists owner for the share"
+    state: present
+  become: true
+  register: lyrion_playlists_user_result
+
+- name: Set Lyrion user variables
+  ansible.builtin.set_fact:
+    mount_lyrion_playlists_user_uid: "{{ lyrion_playlists_user_result.uid }}"
+    mount_lyrion_playlists_user_gid: "{{ lyrion_playlists_user_result.group }}"
+
+- name: Create /mnt/lyrion-playlists mount point for SMB share
+  ansible.builtin.file:
+    path: /mnt/lyrion-playlists
+    state: directory
+  become: true
+
+- name: Mount Lyrion playlists SMB share
+  ansible.posix.mount:
+    src: "//{{ vault_syn3_ip }}/lyrion-playlists"
+    path: /mnt/lyrion-playlists
+    opts: "rw,credentials=/opt/vault-syn-3/smb-credentials.conf,uid={{ mount_lyrion_playlists_user_uid }},gid={{ mount_lyrion_playlists_user_gid }},file_mode=0775,dir_mode=0775"
+    boot: true
+    state: mounted
+    fstype: cifs
+  become: true

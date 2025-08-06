@@ -1,0 +1,21 @@
+services:
+  vaultwarden:
+    image: vaultwarden/server:latest
+    container_name: vaultwarden
+    restart: unless-stopped
+    user: "{{ vaultwarden_user_uid }}:{{ vaultwarden_user_gid }}"
+    networks:
+      - traefik
+    environment:
+      DOMAIN: "https://{{ vaultwarden_domain }}"
+      SIGNUPS_ALLOWED: "false"
+    volumes:
+      - ./data/:/data/
+    ports:
+      - "127.0.0.1:8000:80"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.vaultwarden.rule=Host(`{{ vaultwarden_domain }}`)"
+networks:
+  traefik:
+    external: true

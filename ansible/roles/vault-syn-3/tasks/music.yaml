@@ -1,0 +1,52 @@
+# This is not run by default by this role.
+# To be included when needed:
+# - name: Mount Music file shares
+#  include_role:
+#    name: vault-syn-3
+#    tasks_from: music
+
+- name: Create music share owner
+  ansible.builtin.user:
+    name: mount-music
+    create_home: false
+    comment: "Music files owner for the music share mount"
+    state: present
+  become: true
+  register: mount_music_user_result
+
+- name: Set Music share user variables
+  ansible.builtin.set_fact:
+    mount_music_user_uid: "{{ mount_music_user_result.uid }}"
+    mount_music_user_gid: "{{ mount_music_user_result.group }}"
+
+- name: Create /mnt/music mount point for music SMB share
+  ansible.builtin.file:
+    path: /mnt/music
+    state: directory
+  become: true
+
+- name: Mount music SMB share
+  ansible.posix.mount:
+    src: "//{{ vault_syn3_ip }}/music"
+    path: /mnt/music
+    opts: "ro,credentials=/opt/vault-syn-3/smb-credentials.conf,uid={{ mount_music_user_uid }},gid={{ mount_music_user_gid }}"
+    boot: true
+    state: mounted
+    fstype: cifs
+  become: true
+
+- name: Create /mnt/music-mixes mount point for music SMB share
+  ansible.builtin.file:
+    path: /mnt/music-mixes
+    state: directory
+  become: true
+
+- name: Mount music mixes SMB share
+  ansible.posix.mount:
+    src: "//{{ vault_syn3_ip }}/music-mixes"
+    path: /mnt/music-mixes
+    opts: "ro,credentials=/opt/vault-syn-3/smb-credentials.conf,uid={{ mount_music_user_uid }},gid={{ mount_music_user_gid }}"
+    boot: true
+    state: mounted
+    fstype: cifs
+  become: true

@@ -1,0 +1,19 @@
+#!/bin/sh -e 
+
+. /opt/nextcloud/secrets-mariadb-configuration.env
+
+cd /opt/nextcloud
+
+TIMESTAMP=$(date --utc +%FT%H%M%SZ)
+
+FILENAME=nextcloud_mariadb_dump_$TIMESTAMP.sql
+
+DEST_DIR=/mnt/backup/nextcloud/$TIMESTAMP
+
+docker compose exec db sh -c "mariadb-dump --single-transaction --default-character-set=utf8mb4 --user=root --password=$MARIADB_ROOT_PASSWORD {{ nextcloud_mariadb_database }} > /dumps/$FILENAME"
+
+mkdir -p $DEST_DIR
+
+cp /opt/nextcloud/mariadb-dumps/$FILENAME $DEST_DIR/
+
+rsync --recursive /opt/nextcloud/config/www/nextcloud/config $DEST_DIR

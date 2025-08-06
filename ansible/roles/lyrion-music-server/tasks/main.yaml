@@ -1,0 +1,133 @@
+- name: Set up music SMB share
+  include_role:
+    name: vault-syn-3
+    tasks_from: music
+
+- name: Set up Lyrion playlists share
+  include_role:
+    name: vault-syn-3
+    tasks_from: lyrion-playlists
+
+- name: Create user "service-lyrion" for Lyrion Music Server
+  ansible.builtin.user:
+    name: service-lyrion
+    create_home: false
+    comment: "Lyrion Music Server user"
+    groups:
+      - "{{ mount_lyrion_playlists_user_gid }}"
+    state: present
+  become: true
+  register: lyrion_user_result
+
+- name: Create /opt/lyrion directory for Lyrion Music Server
+  ansible.builtin.file:
+    path: /opt/lyrion
+    state: directory
+    mode: "0775"
+  become: true
+
+- name: Create /opt/lyrion/config directory for Lyrion Music Server
+  ansible.builtin.file:
+    path: /opt/lyrion/config
+    state: directory
+    owner: "{{ lyrion_user_result.name }}"
+    group: "{{ lyrion_user_result.group }}"
+    mode: "0755"
+  become: true
+
+- name: Create LMS Docker Compose file
+  ansible.builtin.template:
+    src: files/docker-compose.yaml.j2
+    dest: /opt/lyrion/docker-compose.yaml
+    mode: "0664"
+    validate: docker compose -f %s config
+  become: true
+  notify: Restart Lyrion Music Server
+
+- name: Allow access to port 3483 TCP
+  community.general.ufw:
+    rule: allow
+    port: 3483
+    proto: tcp
+    direction: in
+  become: true
+
+- name: Allow access to port 3483 UDP
+  community.general.ufw:
+    rule: allow
+    port: 3483
+    proto: udp
+    direction: in
+  become: true
+
+- name: "Allow access to port {{ lyrion_http_port }} TCP"
+  community.general.ufw:
+    rule: allow
+    port: "{{ lyrion_http_port }}"
+    proto: tcp
+    direction: in
+  become: true
+
+- name: Allow access to port 9000 TCP
+  community.general.ufw:
+    rule: allow
+    port: 9000
+    proto: tcp
+    direction: in
+  become: true
+
+- name: Allow access to UPnP UDP port
+  community.general.ufw:
+    rule: allow
+    port: 1900
+    proto: udp
+    direction: in
+  become: true
+
+- name: Allow access to UPnP TCP port
+  community.general.ufw:
+    rule: allow
+    port: 5000
+    proto: tcp
+    direction: in
+  become: true
+
+- name: Allow access to ports for the UPnP/DLNA bridge - TCP
+  community.general.ufw:
+    rule: allow
+    port: 49152:49215
+    proto: tcp
+    direction: in
+  become: true
+
+- name: Allow access to ports for the UPnP/DLNA bridge - UDP
+  community.general.ufw:
+    rule: allow
+    port: 49152:49215
+    proto: udp
+    direction: in
+  become: true
+
+- name: install rsync and sqlite3
+  ansible.builtin.apt:
+    name:
+      - rsync
+      - sqlite3
+    state: present
+    cache_valid_time: 3600
+  become: true
+
+- name: Create Lyrion backup script
+  ansible.builtin.template:
+    src: files/backup.sh.j2
+    dest: /opt/lyrion/backup.sh
+    mode: "0555"
+  become: true
+
+- name: Backup Lyrion every 12 hours with cron
+  ansible.builtin.cron:
+    name: "Backup Lyrion /config/prefs"
+    minute: "0"
+    hour: "4,16"
+    job: "/opt/vaultwarden/backup.sh"
+  become: true

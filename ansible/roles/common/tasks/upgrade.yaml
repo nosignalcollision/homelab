@@ -1,0 +1,12 @@
+- name: Upgrade the OS (dist-upgrade)
+  ansible.builtin.apt:
+    upgrade: dist 
+    update_cache: true
+    cache_valid_time: 3600
+  become: true
+  register: upgrade_result
+
+- name: Reboot system after dist-upgrade
+  ansible.builtin.reboot:
+  become: true
+  when: upgrade_result.changed

@@ -1,0 +1,35 @@
+# This is not run by default by this role.
+# To be included when needed:
+# - name: Mount backup file share 
+#  include_role:
+#    name: vault-syn-3
+#    tasks_from: backup
+- name: Create backup file share owner
+  ansible.builtin.user:
+    name: mount-backup
+    create_home: false
+    comment: "Owner of the backup share mount"
+    state: present
+  become: true
+  register: mount_backup_user_result
+
+- name: Set mount backup user variables
+  ansible.builtin.set_fact:
+    mount_backup_user_uid: "{{ mount_backup_user_result.uid }}"
+    mount_backup_user_gid: "{{ mount_backup_user_result.group }}"
+
+- name: Create /mnt/backup mount point for SMB share
+  ansible.builtin.file:
+    path: /mnt/backup
+    state: directory
+  become: true
+
+- name: Mount backup SMB share
+  ansible.posix.mount:
+    src: "//{{ vault_syn3_ip }}/{{ vault_syn3_backup_share_name }}"
+    path: /mnt/backup
+    opts: "rw,credentials=/opt/vault-syn-3/smb-credentials.conf,uid={{ mount_backup_user_uid }},gid={{ mount_backup_user_gid }},file_mode=0775,dir_mode=0775"
+    boot: true
+    state: mounted
+    fstype: cifs
+  become: true

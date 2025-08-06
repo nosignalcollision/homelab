@@ -1,0 +1,26 @@
+# This is not run by default by this role.
+# To be included when needed:
+# - name: Mount Nextcloud file share
+#  include_role:
+#    name: vault-syn-3
+#    tasks_from: nextcloud
+- ansible.builtin.set_fact:
+    nextcloud_data_mount: /mnt/nextcloud
+
+- name: Create mount point for Nextcloud SMB share
+  ansible.builtin.file:
+    path: "{{ nextcloud_data_mount }}"
+    state: directory
+  become: true
+
+# We need to use the same user as the one that runs the Nextcloud container.
+# Nexctloud wants 0770 permissions on files and directories.
+- name: Mount Nextcloud SMB share
+  ansible.posix.mount:
+    src: "//{{ vault_syn3_ip }}/nextcloud"
+    path: "{{ nextcloud_data_mount }}"
+    opts: "rw,credentials=/opt/vault-syn-3/smb-credentials.conf,uid={{ nextcloud_user_uid }},gid={{ nextcloud_user_gid }},file_mode=0770,dir_mode=0770"
+    boot: true
+    state: mounted
+    fstype: cifs
+  become: true

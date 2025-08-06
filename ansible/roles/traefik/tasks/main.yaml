@@ -1,0 +1,97 @@
+- name: Create Docker network for Traefik
+  community.docker.docker_network:
+    name: traefik
+  become: true
+
+- name: Create /opt/traefik directory for Traefik
+  ansible.builtin.file:
+    path: /opt/traefik
+    state: directory
+    mode: "0775"
+  become: true
+
+- name: Save Cloudflare API token
+  ansible.builtin.copy:
+    mode: "0600"
+    dest: /opt/traefik/secrets-cloudflare.env
+    content: "CF_DNS_API_TOKEN={{ traefik_cloudflare_api_token }}"
+  become: true
+
+- name: Create /opt/traefik/certificates directory for certificates storage
+  ansible.builtin.file:
+    path: /opt/traefik/certificates
+    state: directory
+    mode: "0775"
+  become: true
+
+- name: Install pasllib to create basic auth passwords
+  ansible.builtin.apt:
+    name: python3-passlib
+    state: present
+    cache_valid_time: 3600
+  become: true
+  when: traefik_enable_dashboard is true
+
+- name: Create passwords for Traefic dashboard basic auth
+  community.general.htpasswd:
+    path: /opt/traefik/usersfile.txt
+    name: "{{ traefik_basic_auth_user }}"
+    password: "{{ traefik_basic_auth_password }}"
+    mode: '0600'
+  become: true
+  when: traefik_enable_dashboard is true
+
+- name: Create Traefik configuration file
+  ansible.builtin.template:
+    src: files/traefik-config.yaml.j2
+    dest: /opt/traefik/traefik.yaml
+    mode: "0664"
+  become: true
+  notify: Restart Traefik 
+
+- name: Create Traefik Docker Compose file
+  ansible.builtin.template:
+    src: files/docker-compose.yaml.j2
+    dest: /opt/traefik/docker-compose.yaml
+    mode: "0664"
+    # validate: docker compose -f %s config
+  become: true
+  notify: Restart Traefik 
+
+- name: Allow access to HTTP port
+  community.general.ufw:
+    rule: allow
+    port: 80
+    proto: tcp
+    direction: in
+  become: true
+
+- name: Allow access to HTTPS port
+  community.general.ufw:
+    rule: allow
+    port: 443
+    proto: tcp
+    direction: in
+  become: true
+
+- name: install rsync 
+  ansible.builtin.apt:
+    name: rsync
+    state: present
+    cache_valid_time: 3600
+  become: true
+
+- name: Create Traefik certificates backup script
+  ansible.builtin.template:
+    src: files/backup.sh.j2
+    dest: /opt/traefik/backup.sh
+    mode: "0555"
+  become: true
+
+- name: Backup Traefik every 12 hours with cron
+  ansible.builtin.cron:
+    name: "Backup Traefik certificates"
+    minute: "0"
+    hour: "4,16"
+    job: "/opt/traefik/backup.sh"
+  become: true

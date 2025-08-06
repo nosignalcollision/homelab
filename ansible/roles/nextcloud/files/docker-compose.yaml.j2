@@ -1,0 +1,75 @@
+services:
+  db:
+    # Should use the recommended version: 
+    # https://docs.nextcloud.com/server/latest/admin_manual/installation/system_requirements.html
+    image: mariadb:11.4
+    restart: unless-stopped
+    command: --transaction-isolation=READ-COMMITTED
+    networks:
+      - default
+    volumes:
+      - mariadb:/var/lib/mysql
+      - ./mariadb-dumps:/dumps
+    environment:
+      - MARIADB_DATABASE={{ nextcloud_mariadb_database }}
+    env_file:
+      - path: ./secrets-mariadb-configuration.env
+        required: true
+
+  redis:
+    image: redis:alpine
+    restart: unless-stopped
+    networks:
+      - default
+
+  app:
+    image: lscr.io/linuxserver/nextcloud:latest
+    restart: unless-stopped
+    ports:
+      - 4443:443
+    volumes:
+      - /mnt/nextcloud/data:/data
+      - ./config:/config
+    environment:
+      # Application is configured in
+      # ./config/www/nextcloud/config/config.php
+      # More at:
+      # https://docs.nextcloud.com/server/latest/admin_manual/configuration_server/config_sample_php_parameters.html
+      # A bunch of useful settings:
+      #
+      # Redis:
+      # 'memcache.distributed' => '\\OC\\Memcache\\Redis',
+      # 'redis' => array (
+      #     'host' => 'redis',
+      # ),
+      #
+      # Logging:
+      # 'log_type' => 'syslog',
+      # 'log_type_audit' => 'syslog',
+      # 
+      # For reverse proxy:
+      # 'overwriteprotocol' => 'https',
+      # 'trusted_proxies' => array (
+      #    0 => '172.16.0.0/12',
+      #    1 => '10.0.0.0/8',
+      #  ),
+      - PUID={{ nextcloud_user_uid }}
+      - PGID={{ nextcloud_user_gid }}
+      - TZ=Europe/London
+    networks:
+      - default
+      - traefik
+    depends_on:
+      - db
+      - redis
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.nextcloud.rule=Host(`{{ nextcloud_domain }}`)"
+
+volumes:
+  mariadb:
+
+networks:
+  default:
+  traefik:
+    external: true

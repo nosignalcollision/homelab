@@ -1,0 +1,29 @@
+services:
+  navidrome:
+    restart: unless-stopped
+    image: deluan/navidrome:latest
+    user: "{{ navidrome_user_uid }}:{{ navidrome_user_gid }}"
+    ports:
+      - "{{ navidrome_port}}:{{ navidrome_port }}"
+    networks:
+      - traefik
+    volumes:
+      - "./data/:/data"
+      - "./backup/:/backup"
+      - "/mnt/music:/music:ro"
+      - "/mnt/music-mixes:/music-mixes:ro"
+    environment:
+      ND_PORT: "{{ navidrome_port }}"
+      ND_BACKUP_PATH: /backup
+      ND_BACKUP_SCHEDULE: "4 0 * * *"
+      ND_BACKUP_COUNT: 7
+    env_file:
+      - path: ./secrets-lastfm.env
+        required: false
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik"
+      - "traefik.http.routers.navidrome.rule=Host(`{{ navidrome_domain }}`)"
+networks:
+    traefik:
+        external: true

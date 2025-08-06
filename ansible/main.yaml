@@ -1,0 +1,19 @@
+- hosts: streambox
+  roles:
+    - common
+    - vault-syn-3
+    - backup
+    - docker
+    - traefik
+    - lyrion-music-server
+    - navidrome
+- hosts: dogma
+  roles:
+    - common
+    - vault-syn-3
+    - backup
+    - docker
+    - traefik
+    - nextcloud
+    - joplin
+    - vaultwarden

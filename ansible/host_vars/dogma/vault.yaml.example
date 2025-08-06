@@ -1,0 +1,17 @@
+joplin_domain:
+joplin_postgres_password: 
+
+nextcloud_domain:
+nextcloud_mariadb_password:
+nextcloud_mariadb_root_password: 
+
+traefik_cloudflare_api_token:
+traefik_certificate_resolver_email:
+traefik_dashboard_domain:
+traefik_basic_auth_user:
+traefik_basic_auth_password: 
+
+vault_syn_3_smb_username:
+vault_syn_3_smb_password:
+
+vaultwarden_domain: 

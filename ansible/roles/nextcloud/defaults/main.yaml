@@ -1,0 +1,2 @@
+nextcloud_mariadb_database: nextcloud
+nextcloud_mariadb_user: nextcloud

@@ -1,0 +1,34 @@
+services:
+  traefik:
+    image: traefik:v3.5
+    restart: unless-stopped
+    env_file:
+      - path: ./secrets-cloudflare.env
+        required: false
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+        - traefik
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./traefik.yaml:/etc/traefik/traefik.yml:ro
+      - ./usersfile.txt:/opt/usersfile.txt:ro
+      - ./certificates:/certificates
+      - /etc/localtime:/etc/localtime:ro
+    labels:
+      {%- if traefik_enable_dashboard +%}
+      - "traefik.enable=true"
+      - "traefik.http.routers.mydashboard.rule=Host(`{{ traefik_dashboard_domain }}`)"
+      - "traefik.http.routers.mydashboard.service=api@internal"
+      - "traefik.http.routers.mydashboard.middlewares=myauth"
+      - "traefik.http.middlewares.myauth.basicauth.usersfile=/opt/usersfile.txt"
+      {%- endif +%}
+    {%- if traefik_allow_host_access +%}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    {%- endif +%}
+
+networks:
+    traefik:
+        external: true

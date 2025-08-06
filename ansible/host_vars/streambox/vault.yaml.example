@@ -1,0 +1,14 @@
+lyrion_domain:
+
+navidrome_domain:
+navidrome_lastfm_api_key:
+navidrome_lastfm_secret:
+
+traefik_basic_auth_user:
+traefik_basic_auth_password:
+traefik_certificate_resolver_email:
+traefik_cloudflare_api_token:
+traefik_dashboard_domain:
+
+vault_syn_3_smb_username:
+vault_syn_3_smb_password:

@@ -1,0 +1,4 @@
+- include_role:
+    name: vault-syn-3
+    tasks_from: backup
+  when: true if vault_syn3_backup_share_name else false

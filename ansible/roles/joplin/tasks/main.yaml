@@ -1,0 +1,62 @@
+- name: Create /opt/joplin directory for Joplin
+  ansible.builtin.file:
+    path: /opt/joplin
+    state: directory
+    mode: "0775"
+  become: true
+
+- name: Create /opt/joplin/data directory for Joplin data directory
+  ansible.builtin.file:
+    path: /opt/joplin/data
+    state: directory
+    mode: "0755"
+  become: true
+
+- name: Create /opt/joplin/data/postgres-dumps directory for Joplin PostgreSQL dumps
+  ansible.builtin.file:
+    path: /opt/joplin/data/postgres-dumps
+    state: directory
+    mode: "0755"
+  become: true
+
+- name: Set up Joplin Postgres configuration
+  ansible.builtin.copy:
+    dest: /opt/joplin/secrets-postgres-configuration.env
+    mode: "0600"
+    content: >
+      POSTGRES_PASSWORD={{ joplin_postgres_password }}
+      POSTGRES_USER={{ joplin_postgres_user }}
+      POSTGRES_DB={{ joplin_postgres_db }}
+  become: true
+
+- name: Set up Joplin Postgres connection string
+  ansible.builtin.copy:
+    dest: /opt/joplin/secrets-app-postgres-connection.env
+    mode: "0600"
+    content: >
+      POSTGRES_CONNECTION_STRING=postgresql://{{ joplin_postgres_user }}:{{ joplin_postgres_password }}@db:5432/{{ joplin_postgres_db }}
+  become: true
+
+- name: Create Joplin Docker Compose file
+  ansible.builtin.template:
+    src: files/docker-compose.yaml.j2
+    dest: /opt/joplin/docker-compose.yaml
+    mode: "0664"
+    # validate: docker compose -f %s config
+  become: true
+  notify: Restart Joplin
+
+- name: Create Joplin database backup script
+  ansible.builtin.template:
+    src: files/backup.sh.j2
+    dest: /opt/joplin/backup.sh
+    mode: "0555"
+  become: true
+
+- name: Backup Joplin database every 12 hours with cron
+  ansible.builtin.cron:
+    name: "Backup Joplin database"
+    minute: "0"
+    hour: "0,12"
+    job: "/opt/joplin/backup.sh"
+  become: true

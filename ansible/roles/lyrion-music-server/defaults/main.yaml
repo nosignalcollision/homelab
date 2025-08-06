@@ -1,0 +1,2 @@
+lyrion_http_port: "9000"
+lyrion_advertise_ip_address: "{{ ansible_host }}"

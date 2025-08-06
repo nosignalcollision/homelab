@@ -1,0 +1,84 @@
+- name: Set up music SMB share
+  include_role:
+    name: vault-syn-3
+    tasks_from: music
+
+- name: Create user "service-navidrome" for Navidrome
+  ansible.builtin.user:
+    name: service-navidrome
+    create_home: false
+    comment: "Navidrome user"
+    state: present
+  become: true
+  register: navidrome_user_result
+
+- name: Set Navidrome user variables
+  ansible.builtin.set_fact:
+    navidrome_user_uid: "{{ navidrome_user_result.uid }}"
+    navidrome_user_name: "{{ navidrome_user_result.name }}"
+    navidrome_user_gid: "{{ navidrome_user_result.group }}"
+
+- name: Create /opt/navidrome directory for Navidrome
+  ansible.builtin.file:
+    path: /opt/navidrome
+    state: directory
+    mode: "0775"
+  become: true
+
+- name: Create /opt/navidrome/data directory for Navidrome data directory
+  ansible.builtin.file:
+    path: /opt/navidrome/data
+    state: directory
+    owner: "{{ navidrome_user_name }}"
+    group: "{{ navidrome_user_gid }}"
+    mode: "0755"
+  become: true
+
+- name: Create /opt/navidrome/backup directory for Navidrome backups
+  ansible.builtin.file:
+    path: /opt/navidrome/backup
+    state: directory
+    owner: "{{ navidrome_user_name }}"
+    group: "{{ navidrome_user_gid }}"
+    mode: "0755"
+  become: true
+
+- name: Save Last.fm secrets
+  ansible.builtin.copy:
+    dest: /opt/navidrome/secrets-lastfm.env
+    mode: "0600"
+    content: |
+      ND_LASTFM_APIKEY={{ navidrome_lastfm_api_key }}
+      ND_LASTFM_SECRET={{ navidrome_lastfm_secret }}
+  become: true
+  when: navidrome_lastfm_api_key != "" and navidrome_lastfm_secret != ""
+
+- name: Create Navidrome Docker Compose file
+  ansible.builtin.template:
+    src: files/docker-compose.yaml.j2
+    dest: /opt/navidrome/docker-compose.yaml
+    mode: "0664"
+    validate: docker compose -f %s config
+  become: true
+  notify: Restart Navidrome
+
+- name: install rsync
+  ansible.builtin.apt:
+    name: rsync
+    cache_valid_time: 3600
+  become: true
+
+- name: Create Navidrome sync backups script
+  ansible.builtin.template:
+    src: files/backup.sh.j2
+    dest: /opt/navidrome/backup.sh
+    mode: "0555"
+  become: true
+
+- name: Sync Navidrome backups daily
+  ansible.builtin.cron:
+    name: "Sync Navidrome backups"
+    minute: "0"
+    hour: "6"
+    job: "/opt/navidrome/backup.sh"
+  become: true

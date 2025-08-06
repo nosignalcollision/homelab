@@ -1,0 +1,14 @@
+#!/bin/sh -e
+TIMESTAMP=$(date --utc +%FT%H%M%SZ)
+
+SOURCE_DB_PATH=/opt/vaultwarden/data/db.sqlite3
+
+DEST_DIR=/mnt/backup/vaultwarden/$TIMESTAMP
+DEST_DB_FILENAME=vaultwarden_$TIMESTAMP.sqlite3
+DEST_DB_PATH=$DEST_DIR/$DEST_DB_FILENAME
+
+mkdir -p $DEST_DIR
+
+cp $SOURCE_DB_PATH $DEST_DB_PATH
+
+sqlite3 $SOURCE_DB_PATH ".backup '$DEST_DB_PATH'"

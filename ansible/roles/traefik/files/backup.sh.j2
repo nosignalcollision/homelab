@@ -1,0 +1,9 @@
+#!/bin/sh -e
+TIMESTAMP=$(date --utc +%FT%H%M%SZ)
+
+SOURCE_DIR=/opt/traefik/certificates
+DEST_DIR=/mnt/backup/traefik/$TIMESTAMP/certificates
+
+mkdir -p $DEST_DIR
+
+rsync --recursive $SOURCE_DIR/ $DEST_DIR

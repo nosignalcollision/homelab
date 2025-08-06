@@ -1,0 +1,84 @@
+- name: Create user "service-nextcloud" for Nextcloud
+  ansible.builtin.user:
+    name: service-nextcloud
+    create_home: false
+    comment: "Nextcloud user"
+    state: present
+  become: true
+  register: nextcloud_user_result
+
+- name: Set Nextcloud user variables
+  ansible.builtin.set_fact:
+    nextcloud_user_uid: "{{ nextcloud_user_result.uid }}"
+    nextcloud_user_name: "{{ nextcloud_user_result.name }}"
+    nextcloud_user_gid: "{{ nextcloud_user_result.group }}"
+
+- name: Mount SMB share for Nextcloud data
+  include_role:
+    name: vault-syn-3
+    # This uses nextcloud_user_uid and nextcloud_user_gid to mount the share.
+    tasks_from: nextcloud
+
+- name: Create /opt/nextcloud directory for Nextcloud
+  ansible.builtin.file:
+    path: /opt/nextcloud
+    state: directory
+    mode: "0775"
+  become: true
+
+- name: Create /opt/nextcloud/config directory for Nextcloud config
+  ansible.builtin.file:
+    path: /opt/nextcloud/config
+    state: directory
+    mode: "0775"
+    owner: "{{ nextcloud_user_name }}"
+    group: "{{ nextcloud_user_gid }}"
+  become: true
+
+- name: Create /opt/nextcloud/mariadb-dumps directory for database dumps
+  ansible.builtin.file:
+    path: /opt/nextcloud/mariadb-dumps
+    state: directory
+    mode: "0755"
+  become: true
+
+- name: Set up Nextcloud MariaDB configuration
+  ansible.builtin.copy:
+    dest: /opt/nextcloud/secrets-mariadb-configuration.env
+    mode: "0600"
+    content: |
+      MARIADB_ROOT_PASSWORD={{ nextcloud_mariadb_root_password }}
+      MARIADB_USER={{ nextcloud_mariadb_user }}
+      MARIADB_PASSWORD={{ nextcloud_mariadb_password }}
+  become: true
+
+- name: Create Nextcloud Docker Compose file
+  ansible.builtin.template:
+    src: files/docker-compose.yaml.j2
+    dest: /opt/nextcloud/docker-compose.yaml
+    mode: "0664"
+    # validate: docker compose -f %s config
+  become: true
+  notify: Restart Nextcloud
+
+- name: Install rsync
+  ansible.builtin.apt:
+    name: rsync
+    state: present
+    cache_valid_time: 3600
+  become: true
+
+- name: Create Nextcloud database and config backup script
+  ansible.builtin.template:
+    src: files/backup.sh.j2
+    dest: /opt/nextcloud/backup.sh
+    mode: "0555"
+  become: true
+
+- name: Backup Nextcloud every day with cron
+  ansible.builtin.cron:
+    name: "Backup Nextcloud database and configuration"
+    minute: "0"
+    hour: "3"
+    job: "/opt/nextcloud/backup.sh"
+  become: true

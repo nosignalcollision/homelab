@@ -1,0 +1,7 @@
+#!/bin/sh -e
+cd /opt/joplin
+TIMESTAMP=$(date --utc +%FT%H%M%SZ)
+FILENAME=joplin_postgres_dump_$TIMESTAMP.pg
+docker compose exec db sh -c "/usr/bin/pg_dump --username {{ joplin_postgres_user }} --format=custom --file /dumps/$FILENAME {{ joplin_postgres_db }}"
+mkdir -p /mnt/backup/joplin/$TIMESTAMP/
+cp /opt/joplin/data/postgres-dumps/$FILENAME /mnt/backup/joplin/$TIMESTAMP/

@@ -1,0 +1,6 @@
+ungrouped:
+  hosts:
+    streambox:
+      ansible_host: 192.168.2.32
+    dogma:
+      ansible_host: 192.168.2.21

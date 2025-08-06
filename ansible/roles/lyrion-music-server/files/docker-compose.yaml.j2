@@ -1,0 +1,23 @@
+services:
+  lyrion:
+    restart: unless-stopped
+    image: lmscommunity/lyrionmusicserver:latest
+    network_mode: "host"
+    volumes:
+      - /opt/lyrion/config:/config:rw
+      - /mnt/music:/music:ro
+      - /mnt/lyrion-playlists:/playlist:rw
+      - /mnt/music-mixes:/music-mixes:ro
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.lyrion.rule=Host(`{{ lyrion_domain }}`)"
+      - "traefik.http.services.lyrion.loadbalancer.server.port={{ lyrion_http_port }}"
+    environment:
+      - PUID={{ lyrion_user_result.uid }}
+      - PGID={{ lyrion_user_result.group }}
+      - HTTP_PORT={{ lyrion_http_port }}
+      {%- if lyrion_advertise_ip_address +%}
+      - EXTRA_ARGS=--advertiseaddr={{ lyrion_advertise_ip_address }}
+      {%- endif +%}

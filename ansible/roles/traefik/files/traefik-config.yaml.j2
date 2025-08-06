@@ -1,0 +1,33 @@
+{% if traefik_enable_dashboard -%}
+api:
+  dashboard: true
+{% endif %}
+entryPoints:
+  websecure:
+    address: ":443"
+    asDefault: true
+    http:
+      tls:
+        certresolver: myresolver
+  web:
+    address: ":80"
+    http:
+      redirections:
+        entryPoint:
+          to: websecure
+          scheme: https
+          permanent: false
+providers:
+  docker:
+    # Don't auto-discover containers, they need to be enabled by default.
+    exposedByDefault: false
+
+    network: traefik
+certificatesResolvers:
+  myresolver:
+    acme:
+      email: "{{ traefik_certificate_resolver_email }}"
+      storage: /certificates/acme.json
+      dnsChallenge:
+        provider: cloudflare
+        delayBeforeCheck: 5

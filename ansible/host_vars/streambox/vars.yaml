@@ -1,0 +1,8 @@
+# Allow all incoming traffic because we want to stream music over UPnP
+ufw_allow_incoming_traffic: true
+
+
+vault_syn3_backup_share_name: streambox-backup
+
+# Lyrion container is on the host network mode
+traefik_allow_host_access: true

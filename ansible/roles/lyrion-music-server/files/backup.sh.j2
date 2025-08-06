@@ -1,0 +1,11 @@
+#!/bin/sh -e
+TIMESTAMP=$(date --utc +%FT%H%M%SZ)
+
+SOURCE_DIR=/opt/lyrion/config/prefs
+DEST_DIR=/mnt/backup/lyrion/$TIMESTAMP/config/prefs
+
+mkdir -p $DEST_DIR
+
+rsync --recursive $SOURCE_DIR/ $DEST_DIR
+
+sqlite3 $SOURCE_DIR/persist.db ".backup '$DEST_DIR/persist.db'"

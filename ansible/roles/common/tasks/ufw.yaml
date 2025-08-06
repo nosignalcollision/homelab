@@ -1,0 +1,50 @@
+- name: Install ufw
+  ansible.builtin.apt:
+    name: ufw
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+  become: true
+
+- name: Set UFW logging on
+  community.general.ufw:
+    logging: on
+  become: true
+
+- name: Allow SSH incoming traffic
+  community.general.ufw:
+    rule: allow 
+    port: 22
+    proto: tcp
+    direction: in
+  become: true
+
+- name: By default allow outgoing traffic
+  community.general.ufw:
+    default: allow
+    direction: outgoing
+  become: true
+
+- name: By default deny incoming traffic
+  community.general.ufw:
+    default: deny
+    direction: incoming
+    state: enabled
+  become: true
+  when: ufw_allow_incoming_traffic is not true
+
+- name: By default allow incoming traffic
+  community.general.ufw:
+    default: allow 
+    direction: incoming
+    state: enabled
+  become: true
+  when: ufw_allow_incoming_traffic is true
+
+- name: Enable service ufw
+  ansible.builtin.systemd_service:
+    name: ufw
+    enabled: true
+    state: started
+  become: true
+

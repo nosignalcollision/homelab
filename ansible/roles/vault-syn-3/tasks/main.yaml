@@ -1,0 +1,13 @@
+- name: Create /opt/vault-syn-3 directory
+  ansible.builtin.file:
+    path: /opt/vault-syn-3/
+    state: directory
+    mode: "0600"
+  become: true
+
+- name: Create SMB credentials file
+  ansible.builtin.template:
+    src: files/vault-syn-3-smb-credentials.conf.j2
+    mode: "0600"
+    dest: /opt/vault-syn-3/smb-credentials.conf
+  become: true

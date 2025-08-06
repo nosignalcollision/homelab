@@ -1,0 +1,40 @@
+services:
+  db:
+    image: postgres:16
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./data/postgres-dumps:/dumps
+    ports:
+      - "5432:5432"
+    networks:
+      - default
+    restart: unless-stopped
+    env_file:
+      - path: ./secrets-postgres-configuration.env
+        required: true
+  app:
+    image: joplin/server:latest
+    depends_on:
+      - db
+    ports:
+      - "{{ joplin_port }}:{{ joplin_port }}"
+    networks:
+      - default
+      - traefik
+    restart: unless-stopped
+    env_file:
+      - path: ./secrets-app-postgres-connection.env
+        required: true
+    environment:
+      - APP_PORT={{ joplin_port }}
+      - APP_BASE_URL=https://{{ joplin_domain }}
+      - DB_CLIENT=pg
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.joplin.rule=Host(`{{ joplin_domain }}`)"
+volumes:
+  pgdata:
+networks:
+  default:
+  traefik:
+    external: true

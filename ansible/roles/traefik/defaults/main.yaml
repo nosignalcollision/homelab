@@ -1,0 +1,2 @@
+traefik_allow_host_access: false
+traefik_enable_dashboard: true
