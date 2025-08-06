@@ -1,0 +1,60 @@
+- name: Mount Immich file share
+  include_role:
+    name: vault-syn-3
+    tasks_from: immich
+
+- name: Create /opt/immich directory for Immich
+  ansible.builtin.file:
+    path: /opt/immich
+    state: directory
+    mode: "0775"
+  become: true
+
+- name: Create /opt/immich/postgres-dumps directory for Immich PostgreSQL dumps
+  ansible.builtin.file:
+    path: /opt/immich/postgres-dumps
+    state: directory
+    mode: "0755"
+  become: true
+
+- name: Set up Immich Postgres configuration
+  ansible.builtin.copy:
+    dest: /opt/immich/secrets-postgres-configuration.env
+    mode: "0600"
+    content: |
+      POSTGRES_PASSWORD={{ immich_postgres_password }}
+      POSTGRES_USER={{ immich_postgres_user }}
+      POSTGRES_DB={{ immich_postgres_db }}
+  become: true
+
+- name: Set up Immich Postgres connection string
+  ansible.builtin.copy:
+    dest: /opt/immich/secrets-app-postgres-connection.env
+    mode: "0600"
+    content: |
+      DB_URL=postgresql://{{ immich_postgres_user }}:{{ immich_postgres_password }}@db:5432/{{ immich_postgres_db }}
+  become: true
+
+- name: Create Immich Docker Compose file
+  ansible.builtin.template:
+    src: files/docker-compose.yaml.j2
+    dest: /opt/immich/docker-compose.yaml
+    mode: "0664"
+    # validate: docker compose -f %s config
+  become: true
+  notify: Restart Immich
+
+- name: Create Immich database backup script
+  ansible.builtin.template:
+    src: files/backup.sh.j2
+    dest: /opt/immich/backup.sh
+    mode: "0555"
+  become: true
+
+- name: Backup Immich database every 12 hours with cron
+  ansible.builtin.cron:
+    name: "Backup Immich database"
+    minute: "0"
+    hour: "0,12"
+    job: "/opt/immich/backup.sh"
+  become: true

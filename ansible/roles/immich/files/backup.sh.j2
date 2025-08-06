@@ -1,0 +1,7 @@
+#!/bin/sh -e
+cd /opt/immich
+TIMESTAMP=$(date --utc +%FT%H%M%SZ)
+FILENAME=immich_postgres_dump_$TIMESTAMP.pg
+docker compose exec db sh -c "/usr/bin/pg_dump --username {{ immich_postgres_user }} --format=custom --file /dumps/$FILENAME {{ immich_postgres_db }}"
+mkdir -p /mnt/backup/immich/$TIMESTAMP/
+cp /opt/immich/postgres-dumps/$FILENAME /mnt/backup/immich/$TIMESTAMP/

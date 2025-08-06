@@ -1,5 +1,4 @@
+- include_tasks: timezone.yaml
 - include_tasks: upgrade.yaml
 - include_tasks: utilities.yaml
 - include_tasks: ufw.yaml
-
-

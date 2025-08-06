@@ -55,7 +55,7 @@ services:
       #  ),
       - PUID={{ nextcloud_user_uid }}
       - PGID={{ nextcloud_user_gid }}
-      - TZ=Europe/London
+      - "TZ={{ timezone }}"
     networks:
       - default
       - traefik

@@ -1,0 +1,12 @@
+- ansible.builtin.set_fact:
+    timezone: Europe/London
+
+- name: "Set timezone to {{ timezone }}"
+  ansible.builtin.shell:
+    cmd: "timedatectl set-timezone {{ timezone }}"
+  become: true
+
+- name: Enable NTP
+  ansible.builtin.shell:
+    cmd: "timedatectl set-ntp true"
+  become: true

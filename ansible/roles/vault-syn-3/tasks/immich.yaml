@@ -1,0 +1,38 @@
+# This is not run by default by this role.
+# To be included when needed:
+# - name: Mount Immich file share
+#  include_role:
+#    name: vault-syn-3
+#    tasks_from: immich
+- name: Create Immich share owner
+  ansible.builtin.user:
+    name: mount-immich
+    create_home: false
+    comment: "Immich owner for the share"
+    state: present
+  become: true
+  register: mount_immich_user_result
+
+- name: Set Immich user variables
+  ansible.builtin.set_fact:
+    mount_immich_user_uid: "{{ mount_immich_user_result.uid }}"
+    mount_immich_user_gid: "{{ mount_immich_user_result.group }}"
+
+- ansible.builtin.set_fact:
+    immich_data_mount: /mnt/immich
+
+- name: Create mount point for Immich SMB share
+  ansible.builtin.file:
+    path: "{{ immich_data_mount }}"
+    state: directory
+  become: true
+
+- name: Mount Immich SMB share
+  ansible.posix.mount:
+    src: "//{{ vault_syn3_ip }}/immich"
+    path: "{{ immich_data_mount }}"
+    opts: "rw,credentials=/opt/vault-syn-3/smb-credentials.conf,uid={{ mount_immich_user_uid }},gid={{ mount_immich_user_gid }},file_mode=0775,dir_mode=0775"
+    boot: true
+    state: mounted
+    fstype: cifs
+  become: true

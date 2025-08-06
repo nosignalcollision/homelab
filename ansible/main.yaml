@@ -17,3 +17,12 @@
     - nextcloud
     - joplin
     - vaultwarden
+
+- hosts: visualfeed
+  roles:
+    - common
+    - vault-syn-3
+    - backup
+    - docker
+    - traefik
+    - immich

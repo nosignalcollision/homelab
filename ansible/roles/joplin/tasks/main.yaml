@@ -23,7 +23,7 @@
   ansible.builtin.copy:
     dest: /opt/joplin/secrets-postgres-configuration.env
     mode: "0600"
-    content: >
+    content: |
       POSTGRES_PASSWORD={{ joplin_postgres_password }}
       POSTGRES_USER={{ joplin_postgres_user }}
       POSTGRES_DB={{ joplin_postgres_db }}
@@ -33,7 +33,7 @@
   ansible.builtin.copy:
     dest: /opt/joplin/secrets-app-postgres-connection.env
     mode: "0600"
-    content: >
+    content: |
       POSTGRES_CONNECTION_STRING=postgresql://{{ joplin_postgres_user }}:{{ joplin_postgres_password }}@db:5432/{{ joplin_postgres_db }}
   become: true
 
