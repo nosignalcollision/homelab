@@ -17,3 +17,5 @@ mkdir -p $DEST_DIR
 cp /opt/nextcloud/mariadb-dumps/$FILENAME $DEST_DIR/
 
 rsync --recursive /opt/nextcloud/config/www/nextcloud/config $DEST_DIR
+
+find /opt/nextcloud/mariadb-dumps/* -mtime +7 -exec rm {} \;

@@ -5,3 +5,5 @@ FILENAME=joplin_postgres_dump_$TIMESTAMP.pg
 docker compose exec db sh -c "/usr/bin/pg_dump --username {{ joplin_postgres_user }} --format=custom --file /dumps/$FILENAME {{ joplin_postgres_db }}"
 mkdir -p /mnt/backup/joplin/$TIMESTAMP/
 cp /opt/joplin/data/postgres-dumps/$FILENAME /mnt/backup/joplin/$TIMESTAMP/
+find /opt/joplin/postgres-dumps/* -mtime +7 -exec rm {} \;
+
