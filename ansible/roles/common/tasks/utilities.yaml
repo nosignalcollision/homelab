@@ -1,22 +1,11 @@
-- name: Install Vim
+- name: Install utility packages
   ansible.builtin.apt:
-    name: vim
-    state: present
-    update_cache: true
-    cache_valid_time: 3600
-  become: true
-
-- name: Install Screenfetch
-  ansible.builtin.apt:
-    name: screenfetch
-    state: present
-    update_cache: true
-    cache_valid_time: 3600
-  become: true
-  
-- name: Install htop
-  ansible.builtin.apt:
-    name: htop
+    name: 
+      - htop
+      - iftop
+      - rsync
+      - screenfetch
+      - vim
     state: present
     update_cache: true
     cache_valid_time: 3600

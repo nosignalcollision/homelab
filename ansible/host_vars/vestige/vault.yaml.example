@@ -1,0 +1,11 @@
+immich_domain:
+immich_postgres_password:
+
+traefik_basic_auth_user:
+traefik_basic_auth_password:
+traefik_certificate_resolver_email:
+traefik_cloudflare_api_token:
+traefik_dashboard_domain:
+
+vault_syn_3_smb_username:
+vault_syn_3_smb_password:

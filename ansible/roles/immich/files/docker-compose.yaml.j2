@@ -39,11 +39,6 @@ services:
       - default
     healthcheck:
       disable: false
-    deploy:
-      resources:
-        limits:
-          memory: 6g
-          cpus: 2
 
   redis:
     image: docker.io/valkey/valkey:8-bookworm@sha256:facc1d2c3462975c34e10fccb167bfa92b0e0dbd992fc282c29a61c3243afb11
