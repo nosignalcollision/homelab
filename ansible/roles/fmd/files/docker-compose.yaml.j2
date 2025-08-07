@@ -1,0 +1,24 @@
+services:
+  fmd:
+    image: registry.gitlab.com/fmd-foss/fmd-server:v0.11.0
+    ports:
+      - "127.0.0.1:{{ fmd_port }}:{{ fmd_port }}"
+    user: "{{ fmd_user_uid }}:{{ fmd_user_gid }}"
+    volumes:
+      - ./data/:/var/lib/fmd-server/db/
+    env_file:
+      - path: ./secrets.env
+        required: true
+    environment: 
+      FMD_PORTINSECURE: "{{ fmd_port }}"
+    restart: unless-stopped
+    networks:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.fmd.rule=Host(`{{ fmd_domain }}`)"
+      - "traefik.http.services.fmd.loadbalancer.server.port=8888"
+
+networks:
+  traefik:
+    external: true

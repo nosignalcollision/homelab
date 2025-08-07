@@ -1,0 +1,7 @@
+- name: Restart FMD
+  community.docker.docker_compose_v2:
+    project_src: /opt/fmd
+    state: present
+    pull: always
+    remove_orphans: true
+  become: true

@@ -1,6 +1,7 @@
 - name: Install utility packages
   ansible.builtin.apt:
     name: 
+      - git
       - htop
       - iftop
       - rsync
