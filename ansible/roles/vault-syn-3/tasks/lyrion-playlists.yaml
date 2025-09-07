@@ -4,20 +4,6 @@
 #  include_role:
 #    name: vault-syn-3
 #    tasks_from: lyrion-playlists
-- name: Create Lyrion playlists share owner
-  ansible.builtin.user:
-    name: mount-lyrion-playlists
-    create_home: false
-    comment: "Lyrion playlists owner for the share"
-    state: present
-  become: true
-  register: lyrion_playlists_user_result
-
-- name: Set Lyrion user variables
-  ansible.builtin.set_fact:
-    mount_lyrion_playlists_user_uid: "{{ lyrion_playlists_user_result.uid }}"
-    mount_lyrion_playlists_user_gid: "{{ lyrion_playlists_user_result.group }}"
-
 - name: Create /mnt/lyrion-playlists mount point for SMB share
   ansible.builtin.file:
     path: /mnt/lyrion-playlists

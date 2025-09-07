@@ -1,11 +1,3 @@
-- name: Restart Lyrion Music Server
-  community.docker.docker_compose_v2:
-    project_src: /opt/lyrion
-    state: present
-    pull: always
-    remove_orphans: true
-  become: true
-
 - name: Restart Navidrome
   community.docker.docker_compose_v2:
     project_src: /opt/navidrome

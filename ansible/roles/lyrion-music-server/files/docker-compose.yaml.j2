@@ -15,8 +15,8 @@ services:
       - "traefik.http.routers.lyrion.rule=Host(`{{ lyrion_domain }}`)"
       - "traefik.http.services.lyrion.loadbalancer.server.port={{ lyrion_http_port }}"
     environment:
-      - PUID={{ lyrion_user_result.uid }}
-      - PGID={{ lyrion_user_result.group }}
+      - PUID={{ lyrion_user_uid }}
+      - PGID={{ lyrion_user_gid }}
       - HTTP_PORT={{ lyrion_http_port }}
       {%- if lyrion_advertise_ip_address +%}
       - EXTRA_ARGS=--advertiseaddr={{ lyrion_advertise_ip_address }}

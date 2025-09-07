@@ -1,0 +1,43 @@
+- name: Set audio group name
+  ansible.builtin.set_fact:
+    audio_group_name: audio
+
+- name: Find audio GID
+  ansible.builtin.shell: "getent group {{ audio_group_name }} | cut -d: -f3"
+  register: audio_gid_result
+
+- name: Set audio GID
+  ansible.builtin.set_fact:
+    audio_gid: "{{ audio_gid_result.stdout }}"
+
+
+- name: Create user "service-squeezelite" for Squeezelite
+  ansible.builtin.user:
+    name: service-squeezelite
+    create_home: false
+    groups:
+      - "{{ audio_group_name }}"
+    state: present
+  become: true
+  register: squeezelite_user_result
+
+- name: Set Squeezelite user
+  ansible.builtin.set_fact:
+    squeezelite_user_uid: "{{ squeezelite_user_result.uid }}"
+    squeezelite_user_gid: "{{ squeezelite_user_result.group }}"
+
+- name: Create /opt/squeezelite directory for Squeezelite
+  ansible.builtin.file:
+    path: /opt/squeezelite
+    state: directory
+    mode: "0775"
+  become: true
+
+- name: Create Squeezelite Docker Compose file
+  ansible.builtin.template:
+    src: files/docker-compose.yaml.j2
+    dest: /opt/squeezelite/docker-compose.yaml
+    mode: "0664"
+    validate: docker compose -f %s config
+  become: true
+  notify: Restart Squeezelite

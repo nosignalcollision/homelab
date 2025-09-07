@@ -1,6 +1,6 @@
-- name: Restart Lyrion Music Server
+- name: Restart Squeezelite
   community.docker.docker_compose_v2:
-    project_src: /opt/lyrion
+    project_src: /opt/squeezelite
     state: present
     pull: always
     remove_orphans: true

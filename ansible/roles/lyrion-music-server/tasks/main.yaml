@@ -3,21 +3,26 @@
     name: vault-syn-3
     tasks_from: music
 
-- name: Set up Lyrion playlists share
-  include_role:
-    name: vault-syn-3
-    tasks_from: lyrion-playlists
-
 - name: Create user "service-lyrion" for Lyrion Music Server
   ansible.builtin.user:
     name: service-lyrion
     create_home: false
     comment: "Lyrion Music Server user"
-    groups:
-      - "{{ mount_lyrion_playlists_user_gid }}"
     state: present
   become: true
   register: lyrion_user_result
+
+- ansible.builtin.set_fact:
+    lyrion_user_gid: "{{ lyrion_user_result.group }}"
+    lyrion_user_name: "{{ lyrion_user_result.name }}"
+    lyrion_user_uid: "{{ lyrion_user_result.uid }}"
+    mount_lyrion_playlists_user_uid: "{{ lyrion_user_result.uid }}"
+    mount_lyrion_playlists_user_gid: "{{ lyrion_user_result.group }}"
+
+- name: Set up Lyrion playlists share
+  include_role:
+    name: vault-syn-3
+    tasks_from: lyrion-playlists
 
 - name: Create /opt/lyrion directory for Lyrion Music Server
   ansible.builtin.file:
@@ -30,8 +35,8 @@
   ansible.builtin.file:
     path: /opt/lyrion/config
     state: directory
-    owner: "{{ lyrion_user_result.name }}"
-    group: "{{ lyrion_user_result.group }}"
+    owner: "{{ lyrion_user_name }}"
+    group: "{{ lyrion_user_gid }}"
     mode: "0755"
   become: true
 
