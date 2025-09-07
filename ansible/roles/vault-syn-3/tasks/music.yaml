@@ -29,7 +29,7 @@
   ansible.posix.mount:
     src: "//{{ vault_syn3_ip }}/music"
     path: /mnt/music
-    opts: "ro,credentials=/opt/vault-syn-3/smb-credentials.conf,uid={{ mount_music_user_uid }},gid={{ mount_music_user_gid }}"
+    opts: "ro,credentials=/opt/vault-syn-3/smb-credentials.conf,uid={{ mount_music_user_uid }},gid={{ mount_music_user_gid }},x-systemd.automount,x-systemd.idle-timeout=1min"
     boot: true
     state: mounted
     fstype: cifs
@@ -45,7 +45,7 @@
   ansible.posix.mount:
     src: "//{{ vault_syn3_ip }}/music-mixes"
     path: /mnt/music-mixes
-    opts: "ro,credentials=/opt/vault-syn-3/smb-credentials.conf,uid={{ mount_music_user_uid }},gid={{ mount_music_user_gid }}"
+    opts: "ro,credentials=/opt/vault-syn-3/smb-credentials.conf,uid={{ mount_music_user_uid }},gid={{ mount_music_user_gid }},x-systemd.automount,x-systemd.idle-timeout=1min"
     boot: true
     state: mounted
     fstype: cifs

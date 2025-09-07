@@ -28,7 +28,7 @@
   ansible.posix.mount:
     src: "//{{ vault_syn3_ip }}/{{ vault_syn3_backup_share_name }}"
     path: /mnt/backup
-    opts: "rw,credentials=/opt/vault-syn-3/smb-credentials.conf,uid={{ mount_backup_user_uid }},gid={{ mount_backup_user_gid }},file_mode=0775,dir_mode=0775"
+    opts: "rw,credentials=/opt/vault-syn-3/smb-credentials.conf,uid={{ mount_backup_user_uid }},gid={{ mount_backup_user_gid }},file_mode=0775,dir_mode=0775,x-systemd.automount,x-systemd.idle-timeout=1min"
     boot: true
     state: mounted
     fstype: cifs
