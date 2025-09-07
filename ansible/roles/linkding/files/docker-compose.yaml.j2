@@ -1,0 +1,18 @@
+services:
+  linkding:
+    # user: "{{ linkding_user_uid }}:{{ linkding_user_gid }}"
+    image: sissbruecker/linkding:latest-plus
+    volumes:
+      - "./data:/etc/linkding/data"
+    restart: unless-stopped
+    networks:
+      - traefik
+    ports:
+      - "10567:9090"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.linkding.rule=Host(`{{ linkding_domain }}`)"
+
+networks:
+  traefik:
+    external: true

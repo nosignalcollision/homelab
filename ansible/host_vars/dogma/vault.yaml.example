@@ -1,6 +1,8 @@
 joplin_domain:
 joplin_postgres_password: 
 
+linkding_domain:
+
 nextcloud_domain:
 nextcloud_mariadb_password:
 nextcloud_mariadb_root_password: 

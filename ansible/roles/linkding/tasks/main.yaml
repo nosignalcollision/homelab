@@ -1,0 +1,60 @@
+- name: Create user "service-linkding" for linkding
+  ansible.builtin.user:
+    name: service-linkding
+    create_home: false
+    state: present
+  become: true
+  register: linkding_user_result
+
+- name: Set linkding user variables
+  ansible.builtin.set_fact:
+    linkding_user_uid: "{{ linkding_user_result.uid }}"
+    linkding_user_gid: "{{ linkding_user_result.group }}"
+    linkding_user_name: "{{ linkding_user_result.name }}"
+
+- name: Create /opt/linkding directory for linkding 
+  ansible.builtin.file:
+    path: /opt/linkding
+    state: directory
+    mode: "0775"
+  become: true
+
+- name: Create /opt/linkding/data directory for linkding data directory
+  ansible.builtin.file:
+    path: /opt/linkding/data
+    state: directory
+    mode: "0755"
+    owner: "{{ linkding_user_name }}"
+    group: "{{ linkding_user_gid }}"
+  become: true
+
+- name: Create linkding Docker Compose file
+  ansible.builtin.template:
+    src: files/docker-compose.yaml.j2
+    dest: /opt/linkding/docker-compose.yaml
+    mode: "0664"
+    # validate: docker compose -f %s config
+  become: true
+  notify: Restart linkding 
+
+- name: Install SQLite CLI
+  ansible.builtin.apt:
+    name: sqlite3
+    state: present
+    cache_valid_time: 3600
+  become: true
+
+- name: Create linkding database backup script
+  ansible.builtin.template:
+    src: files/backup.sh.j2
+    dest: /opt/linkding/backup.sh
+    mode: "0555"
+  become: true
+
+- name: Backup linkding database every 24 hours with cron
+  ansible.builtin.cron:
+    name: "Backup linkding database"
+    minute: "0"
+    hour: "0"
+    job: "/opt/linkding/backup.sh"
+  become: true
