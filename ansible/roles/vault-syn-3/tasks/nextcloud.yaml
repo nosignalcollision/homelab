@@ -19,7 +19,7 @@
   ansible.posix.mount:
     src: "//{{ vault_syn3_ip }}/nextcloud"
     path: "{{ nextcloud_data_mount }}"
-    opts: "rw,credentials=/opt/vault-syn-3/smb-credentials.conf,uid={{ nextcloud_user_uid }},gid={{ nextcloud_user_gid }},file_mode=0770,dir_mode=0770"
+    opts: "rw,credentials=/opt/vault-syn-3/smb-credentials.conf,uid={{ nextcloud_user_uid }},gid={{ nextcloud_user_gid }},file_mode=0770,dir_mode=0770,x-systemd.automount,x-systemd.idle-timeout=1min"
     boot: true
     state: mounted
     fstype: cifs

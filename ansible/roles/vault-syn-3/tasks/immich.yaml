@@ -31,7 +31,7 @@
   ansible.posix.mount:
     src: "//{{ vault_syn3_ip }}/immich"
     path: "{{ immich_data_mount }}"
-    opts: "rw,credentials=/opt/vault-syn-3/smb-credentials.conf,uid={{ mount_immich_user_uid }},gid={{ mount_immich_user_gid }},file_mode=0775,dir_mode=0775"
+    opts: "rw,credentials=/opt/vault-syn-3/smb-credentials.conf,uid={{ mount_immich_user_uid }},gid={{ mount_immich_user_gid }},file_mode=0775,dir_mode=0775,x-systemd.automount,x-systemd.idle-timeout=1min"
     boot: true
     state: mounted
     fstype: cifs
