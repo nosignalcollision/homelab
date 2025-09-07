@@ -3,6 +3,10 @@ joplin_postgres_password:
 
 linkding_domain:
 
+navidrome_domain:
+navidrome_lastfm_api_key:
+navidrome_lastfm_secret:
+
 nextcloud_domain:
 nextcloud_mariadb_password:
 nextcloud_mariadb_root_password: 

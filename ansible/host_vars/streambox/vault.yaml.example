@@ -1,9 +1,5 @@
 lyrion_domain:
 
-navidrome_domain:
-navidrome_lastfm_api_key:
-navidrome_lastfm_secret:
-
 traefik_basic_auth_user:
 traefik_basic_auth_password:
 traefik_certificate_resolver_email:
