@@ -1,0 +1,25 @@
+services:
+  freshrss:
+    image: freshrss/freshrss:latest
+    restart: unless-stopped
+    logging:
+      options:
+        max-size: 10m
+    volumes:
+      - ./data:/var/www/FreshRSS/data
+      - extensions:/var/www/FreshRSS/extensions
+    environment:
+      TZ: "{{ timezone }}"
+      CRON_MIN: "3,33"
+    networks:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.freshrss.rule=Host(`{{ freshrss_domain }}`)"
+
+volumes:
+  extensions:
+
+networks:
+  traefik:
+    external: true

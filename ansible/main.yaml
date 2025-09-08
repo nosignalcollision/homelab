@@ -17,6 +17,7 @@
     - docker
     - traefik
     - watchtower
+    - freshrss
     - nextcloud
     - joplin
     - vaultwarden

@@ -1,0 +1,11 @@
+#!/bin/sh -e
+TIMESTAMP=$(date --utc +%FT%H%M%SZ)
+
+SOURCE_DIR=/opt/freshrss/data
+
+DEST_DIR=/mnt/backup/freshrss/$TIMESTAMP
+
+mkdir -p $DEST_DIR
+
+rsync --recursive $SOURCE_DIR/ $DEST_DIR
+
