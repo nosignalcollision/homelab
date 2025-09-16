@@ -38,12 +38,12 @@ resource "cloudflare_dns_record" "mx2" {
 }
 
 resource "cloudflare_dns_record" "dkim" {
-  for_each = toset(["1", "2", "3"])
+  for_each = toset(["fm1", "fm2", "fm3"])
   type     = "CNAME"
   proxied  = false
   zone_id  = var.cloudflare_zone_id
-  name     = "fm${each.key}._domainkey.${var.domain_name}"
-  content  = "fm${each.key}.${var.domain_name}.dkim.fmhosted.com"
+  name     = "${each.key}._domainkey.${var.domain_name}"
+  content  = "${each.key}.${var.domain_name}.dkim.fmhosted.com"
   ttl      = 1
 }
 
