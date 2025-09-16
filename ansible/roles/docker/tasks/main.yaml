@@ -1,6 +1,6 @@
 - name: Install dependencies
   ansible.builtin.apt:
-    name: 
+    name:
       - ca-certificates
       - curl
     update_cache: true

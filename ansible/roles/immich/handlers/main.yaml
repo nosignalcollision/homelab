@@ -1,4 +1,4 @@
-- name: Restart Immich 
+- name: Restart Immich
   community.docker.docker_compose_v2:
     project_src: /opt/immich
     state: present

@@ -13,7 +13,7 @@
 
 - name: Allow SSH incoming traffic
   community.general.ufw:
-    rule: allow 
+    rule: allow
     port: 22
     proto: tcp
     direction: in
@@ -35,7 +35,7 @@
 
 - name: By default allow incoming traffic
   community.general.ufw:
-    default: allow 
+    default: allow
     direction: incoming
     state: enabled
   become: true
@@ -47,4 +47,3 @@
     enabled: true
     state: started
   become: true
-

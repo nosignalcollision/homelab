@@ -1,4 +1,4 @@
 #!/bin/sh -e
 DEST_DIR=/mnt/backup/navidrome
-mkdir -p $DEST_DIR 
+mkdir -p $DEST_DIR
 rsync --recursive --verbose /opt/navidrome/backup/ $DEST_DIR

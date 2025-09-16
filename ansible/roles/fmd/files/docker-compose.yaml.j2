@@ -9,7 +9,7 @@ services:
     env_file:
       - path: ./secrets.env
         required: true
-    environment: 
+    environment:
       FMD_PORTINSECURE: "{{ fmd_port }}"
     restart: unless-stopped
     networks:

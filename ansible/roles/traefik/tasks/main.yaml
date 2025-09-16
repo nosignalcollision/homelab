@@ -47,7 +47,7 @@
     dest: /opt/traefik/traefik.yaml
     mode: "0664"
   become: true
-  notify: Restart Traefik 
+  notify: Restart Traefik
 
 - name: Create Traefik Docker Compose file
   ansible.builtin.template:
@@ -56,7 +56,7 @@
     mode: "0664"
     # validate: docker compose -f %s config
   become: true
-  notify: Restart Traefik 
+  notify: Restart Traefik
 
 - name: Allow access to HTTP port
   community.general.ufw:
@@ -74,7 +74,7 @@
     direction: in
   become: true
 
-- name: install rsync 
+- name: install rsync
   ansible.builtin.apt:
     name: rsync
     state: present

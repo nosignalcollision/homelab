@@ -12,7 +12,7 @@
     linkding_user_gid: "{{ linkding_user_result.group }}"
     linkding_user_name: "{{ linkding_user_result.name }}"
 
-- name: Create /opt/linkding directory for linkding 
+- name: Create /opt/linkding directory for linkding
   ansible.builtin.file:
     path: /opt/linkding
     state: directory
@@ -35,7 +35,7 @@
     mode: "0664"
     # validate: docker compose -f %s config
   become: true
-  notify: Restart linkding 
+  notify: Restart linkding
 
 - name: Install SQLite CLI
   ansible.builtin.apt:

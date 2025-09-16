@@ -12,7 +12,7 @@
     freshrss_user_gid: "{{ freshrss_user_result.group }}"
     freshrss_user_name: "{{ freshrss_user_result.name }}"
 
-- name: Create /opt/freshrss directory for freshrss 
+- name: Create /opt/freshrss directory for freshrss
   ansible.builtin.file:
     path: /opt/freshrss
     state: directory
@@ -35,7 +35,7 @@
     mode: "0664"
     # validate: docker compose -f %s config
   become: true
-  notify: Restart freshrss 
+  notify: Restart freshrss
 
 - name: Install SQLite CLI
   ansible.builtin.apt:

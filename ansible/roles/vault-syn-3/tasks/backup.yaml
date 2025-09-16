@@ -1,6 +1,6 @@
 # This is not run by default by this role.
 # To be included when needed:
-# - name: Mount backup file share 
+# - name: Mount backup file share
 #  include_role:
 #    name: vault-syn-3
 #    tasks_from: backup
